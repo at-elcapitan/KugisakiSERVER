@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
   if (argc > 1) {
     int i = 0;
     for (; i < argc; ++i) {
-      if (!(strcmp(argv[i], "-verbose"))) {
+      if (strcmp(argv[i], "-verbose") == 0) {
         log_set_level(LOG_DEBUG);
       }
 
@@ -68,8 +68,8 @@ int main(int argc, char *argv[]) {
         i++;
       }
 
-      if (strcmp(argv[i], "-version")) {
-        puts("nkserver ver. 0.0.0 202401120652\n\n"
+      if (strcmp(argv[i], "-version") == 0) {
+        puts("nkserver ver. 0.0.0 202401120654\n\n"
              "NKServer Copyright (C) 2024 Vladislav 'ElCapitan' Nazarov (AT "
              "PROJECT)\nThis program comes with ABSOLUTELY NO WARRANTY; for "
              "details check `LICENSE` file.\nThis is free software, and you"
