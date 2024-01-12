@@ -18,7 +18,10 @@
 */
 #include "server.h"
 
-void free_server(struct Server *server) { free(server); }
+void free_server(struct Server *server) {
+  close(server->socket);
+  free(server);
+}
 
 struct Server *create_server(int domain, int service, int protocol,
                              long interface, int port, int backlog,

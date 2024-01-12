@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
       }
 
       if (strcmp(argv[i], "-version") == 0) {
-        puts("nkserver ver. 0.0.0 202401120654\n\n"
+        puts("nkserver ver. 0.0.0 202401120707\n\n"
              "NKServer Copyright (C) 2024 Vladislav 'ElCapitan' Nazarov (AT "
              "PROJECT)\nThis program comes with ABSOLUTELY NO WARRANTY; for "
              "details check `LICENSE` file.\nThis is free software, and you"
@@ -120,8 +120,7 @@ int main(int argc, char *argv[]) {
       log_error("Error reading data: %s", strerror(errno));
     }
 
-    log_info("Accepting `%s` from ", strtok(req_data, "\n"));
-    printf("%s\n", req_data);
+    log_info("Accepting %s", strtok(req_data, "\n"));
     write(clsocket, resp, sizeof(resp));
     close(clsocket);
   }
