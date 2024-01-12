@@ -18,23 +18,44 @@
 */
 #include "server.h"
 
+void free_server(struct Server *server) { free(server); }
+
 struct Server *create_server(int domain, int service, int protocol,
-                             long interface, int port, char *files) {
-  struct Server *server = (struct Server *)malloc(sizeof(struct Server));
+                             long interface, int port, int backlog,
+                             char *files) {
+  struct Server *server = malloc(sizeof(struct Server));
 
-  server->protocol = protocol;
-  server->files_path = files;
-
-  server->address.sin_family = domain;
-  server->address.sin_addr.s_addr = htonl(interface);
-  server->address.sin_port = htonl(port);
-
-  if ((server->socket = socket(domain, service, protocol)) == 0) {
-    free(server);
+  if (server == NULL) {
+    log_error("Error while allocating memory: %s", strerror(errno));
     return NULL;
   }
 
+  server->protocol = protocol;
+  server->files_path = files;
+  server->port = port;
+
+  server->address.sin_family = domain;
+  server->address.sin_addr.s_addr = htons(interface);
+  server->address.sin_port = htons(port);
+
+  log_debug("Link,");
+  if ((server->socket = socket(domain, service, protocol)) < 0) {
+    log_error("Error creating socket: %s", strerror(errno));
+    free_server(server);
+    return NULL;
+  }
+
+  if ((bind(server->socket, (struct sockaddr *)&server->address,
+            sizeof(server->address))) < 0) {
+    log_error("Error binding socket: %s", strerror(errno));
+    free_server(server);
+    return NULL;
+  }
+
+  if ((listen(server->socket, backlog)) < 0) {
+    log_error("Listening start failed: %s", strerror(errno));
+    free_server(server);
+    return NULL;
+  }
   return server;
 }
-
-void free_server(struct Server *server) { free(server); }

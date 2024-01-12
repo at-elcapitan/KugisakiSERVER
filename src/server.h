@@ -19,20 +19,28 @@
 #ifndef kugisaki_SERVER
 #define kugisaki_SERVER
 
+#include "log.h"
+
+#include <errno.h>
 #include <netinet/in.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
 struct Server {
   int socket;
   int protocol;
+  int port;
+
   struct sockaddr_in address;
   char *files_path;
 };
 
 struct Server *create_server(int domain, int service, int protocol,
-                             long interface, int port, char *files);
+                             long interface, int port, int backlog,
+                             char *files);
 void free_server(struct Server *server);
 
 #endif

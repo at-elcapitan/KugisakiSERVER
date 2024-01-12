@@ -14,9 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 COM      	:= cc
-CFLAGS 		:= -Wall -Wextra -g -DLOG_USE_COLOR -std=c89
+CFLAGS 		:= -Wall -Wextra -g -DLOG_USE_COLOR -std=c89 -Oz
 LFLAGS   	:=  
 SRCDIRS	  := src
 BUILDDR		:= build
@@ -27,6 +26,10 @@ FILES			:= files
 SOURCES   := $(wildcard src/*.c) $(wildcard src/**/*.c)
 OBJECTS	  := $(patsubst $(SRCDIRS)/%.c, $(BUILDDR)/%.o, $(SOURCES))
 OUTFILE		:= $(OUT)/$(MAIN)
+
+ifdef DEBUG
+CFLAGS += -Dkugisaki_DEBUG
+endif
 
 all: dirs $(MAIN)
 	cp $(FILES)/* $(OUT)/
