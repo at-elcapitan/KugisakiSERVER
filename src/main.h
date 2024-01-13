@@ -24,4 +24,7 @@
 #include <unistd.h>
 
 #include "log.h"
+#include "response.h"
 #include "server.h"
+
+#define BUILD "v0.0.0 2024011336"

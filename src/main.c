@@ -18,19 +18,6 @@
 */
 #include "main.h"
 
-const char resp[] = "HTTP/1.1 200 OK\n"
-                    "Content-Type: text/html\n\n"
-                    "<!DOCTYPE html>\n"
-                    "<html>\n"
-                    "<head>\n"
-                    "<title>Kugisaki SERVER is alive!</title>\n"
-                    "</head>\n"
-                    "<body>\n"
-                    "<h1>Kugisaki SERVER is alive!</h1>\n"
-                    "<p>Hello, user! The server is up and running.</p>\n"
-                    "</body>\n"
-                    "</html>\n";
-
 struct Server *server;
 bool running = true;
 
@@ -44,7 +31,6 @@ int main(int argc, char *argv[]) {
   int port = 80;
 
   log_set_level(LOG_INFO);
-
   if (argc > 1) {
     int i = 0;
     for (; i < argc; ++i) {
@@ -69,12 +55,13 @@ int main(int argc, char *argv[]) {
       }
 
       if (strcmp(argv[i], "-version") == 0) {
-        puts("nkserver ver. 0.0.0 202401120707\n\n"
-             "NKServer Copyright (C) 2024 Vladislav 'ElCapitan' Nazarov (AT "
+        puts(BUILD);
+        puts("NKugisaki Server Copyright (C) 2024 Vladislav 'ElCapitan' "
+             "Nazarov (AT "
              "PROJECT)\nThis program comes with ABSOLUTELY NO WARRANTY; for "
              "details check `LICENSE` file.\nThis is free software, and you"
              "are welcome to redistribute it "
-             "under certain conditions.");
+             "under certain conditions.\n");
         return 0;
       }
     }
@@ -92,6 +79,8 @@ int main(int argc, char *argv[]) {
   } else {
     puts("AT PROJECT, 2024\nKugisaki SERVER\n");
   }
+
+  log_info("Starting NKugisaki Server, build %s", BUILD);
 
   signal(SIGINT, sigint_handler);
   server = create_server(AF_INET, SOCK_STREAM, 0, INADDR_ANY, port, 10, "");
@@ -118,10 +107,51 @@ int main(int argc, char *argv[]) {
 
     if ((read(clsocket, req_data, sizeof(req_data))) < 0) {
       log_error("Error reading data: %s", strerror(errno));
+      continue;
     }
 
-    log_info("Accepting %s", strtok(req_data, "\n"));
-    write(clsocket, resp, sizeof(resp));
+    char *token = strtok(req_data, "\n");
+    char *req_path = (char *)malloc(strlen(token) - 13);
+    log_info("Accepting %s", token);
+
+    if ((sscanf(token, "%*s %s %*s", req_path)) != 1) {
+      log_warn("Unable to get request path");
+      free(req_path);
+      close(clsocket);
+      continue;
+    }
+
+    if (strchr(req_path, '.') == 0) {
+      close(clsocket);
+      continue;
+    }
+
+    char path[strlen(req_path) + 6];
+    sprintf(path, "./html%s", req_path);
+    free(req_path);
+
+    log_debug("Result path: %s", path);
+    FILE *fd = fopen(path, "r");
+
+    if (fd == NULL) {
+      log_warn("Requested file %s not found", path);
+      close(clsocket);
+      continue;
+    }
+
+    fseek(fd, 0, SEEK_END);
+    int fsize = ftell(fd);
+    rewind(fd);
+
+    char *resp = (char *)malloc(fsize + R200_HSIZE + 1);
+    strncpy(resp, R200_HEADER, R200_HSIZE);
+
+    resp += R200_HSIZE;
+    fread(resp, 1, fsize, fd);
+    resp -= R200_HSIZE;
+
+    write(clsocket, resp, fsize + R200_HSIZE);
+    fclose(fd);
     close(clsocket);
   }
   return 0;
