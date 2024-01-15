@@ -26,5 +26,6 @@
 #include "log.h"
 #include "response.h"
 #include "server.h"
+#include "types.h"
 
-#define BUILD "v0.0.0 2024011336"
+#define BUILD "atnk-202401151301"

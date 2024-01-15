@@ -62,3 +62,45 @@ struct Server *create_server(int domain, int service, int protocol,
   }
   return server;
 }
+
+char *process_request(struct Request *req) {
+  char *filetype = strchr(req->request_file, '.');
+  filetype++;
+  char header[250] = "";
+
+  char *path = (char *)malloc(sizeof(char) * (strlen(req->request_file) + 6));
+  sprintf(path, "./html%s", req->request_file);
+
+  FILE *fd = fopen(path, "r");
+
+  if (fd == NULL) {
+    log_warn("Requested file %s not found", path);
+    free(path);
+    return NULL;
+  }
+
+  log_debug("Filetype: ", filetype);
+
+  if (strcmp(filetype, "css") == 0) {
+    strcpy(header, "");
+  } else if (strcmp(filetype, "html") == 0) {
+    strcpy(header, "HTTP/1.1 200 OK\nContent-Type: text/html\n\n");
+  }
+
+  fseek(fd, 0, SEEK_END);
+  int fsize = ftell(fd);
+  rewind(fd);
+
+  char *response_content = (char *)malloc(sizeof(char) * fsize);
+  fread(response_content, 1, fsize, fd);
+  fclose(fd);
+
+  char *res = (char *)malloc(sizeof(char) *
+                             (strlen(header) + strlen(response_content)));
+
+  strcpy(res, header);
+  strcat(res, response_content);
+  free(response_content);
+  free(path);
+  return res;
+}

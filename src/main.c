@@ -111,47 +111,27 @@ int main(int argc, char *argv[]) {
     }
 
     char *token = strtok(req_data, "\n");
-    char *req_path = (char *)malloc(strlen(token) - 13);
+    struct Request *req = create_request(clsocket, strlen(token));
+
     log_info("Accepting %s", token);
 
-    if ((sscanf(token, "%*s %s %*s", req_path)) != 1) {
+    if ((sscanf(token, "%s %s %*s", req->request_type, req->request_file)) !=
+        2) {
       log_warn("Unable to get request path");
-      free(req_path);
       close(clsocket);
       continue;
     }
 
-    if (strchr(req_path, '.') == 0) {
+    char *resp = process_request(req);
+    delete_reqest(req);
+
+    if (resp == NULL) {
       close(clsocket);
       continue;
     }
 
-    char path[strlen(req_path) + 6];
-    sprintf(path, "./html%s", req_path);
-    free(req_path);
-
-    log_debug("Result path: %s", path);
-    FILE *fd = fopen(path, "r");
-
-    if (fd == NULL) {
-      log_warn("Requested file %s not found", path);
-      close(clsocket);
-      continue;
-    }
-
-    fseek(fd, 0, SEEK_END);
-    int fsize = ftell(fd);
-    rewind(fd);
-
-    char *resp = (char *)malloc(fsize + R200_HSIZE + 1);
-    strncpy(resp, R200_HEADER, R200_HSIZE);
-
-    resp += R200_HSIZE;
-    fread(resp, 1, fsize, fd);
-    resp -= R200_HSIZE;
-
-    write(clsocket, resp, fsize + R200_HSIZE);
-    fclose(fd);
+    write(clsocket, resp, strlen(resp));
+    free(resp);
     close(clsocket);
   }
   return 0;

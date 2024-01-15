@@ -29,6 +29,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "response.h"
+#include "types.h"
+
 struct Server {
   int socket;
   int protocol;
@@ -42,5 +45,6 @@ struct Server *create_server(int domain, int service, int protocol,
                              long interface, int port, int backlog,
                              char *files);
 void free_server(struct Server *server);
+char *process_request(struct Request *req);
 
 #endif
