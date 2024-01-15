@@ -65,7 +65,13 @@ struct Server *create_server(int domain, int service, int protocol,
 
 char *process_request(struct Request *req) {
   char *filetype = strchr(req->request_file, '.');
-  filetype++;
+
+  if (filetype == NULL) {
+    filetype = "html";
+    strcat(req->request_file, "/index.html");
+  } else
+    filetype++;
+
   char header[250] = "";
 
   char *path = (char *)malloc(sizeof(char) * (strlen(req->request_file) + 6));
@@ -79,7 +85,7 @@ char *process_request(struct Request *req) {
     return NULL;
   }
 
-  log_debug("Filetype: ", filetype);
+  log_debug("Filetype: %s", filetype);
 
   if (strcmp(filetype, "css") == 0) {
     strcpy(header, "");

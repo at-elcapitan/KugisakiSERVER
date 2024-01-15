@@ -32,7 +32,7 @@ CFLAGS += -Dkugisaki_DEBUG
 endif
 
 all: dirs $(MAIN)
-	cp $(FILES)/* $(OUT)/
+	cp -r $(FILES)/* $(OUT)/
 	@echo Done!
 
 dirs :

@@ -1,0 +1,50 @@
+:root {
+  color-scheme: light dark;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+  padding: 0;
+}
+
+h6 {
+  color: gray;
+  font-size: 14px;
+}
+
+html, body {
+  font-family: 'Courier New', Courier, monospace;
+  margin: 0;
+  height: 100%;
+  user-select: none;
+  transition: all 300ms;
+}
+
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui;
+  display: flex;
+  flex-direction: column;
+}
+
+hr {
+  border-top: 1px;
+}
+
+main {
+  margin-top: 10px;
+  flex: 1 1 auto;
+  align-self: center;
+}
+
+footer {
+  margin: 3px;
+  display: flex;
+}
+
+footer .right {
+  position: absolute;
+  right: 3px;
+}
