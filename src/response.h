@@ -19,9 +19,25 @@
 #ifndef kugisaki_RESPONCE
 #define kugisaki_RESPONCE
 
+/* Error pages */
+#define P404 "error/404.html"
+
+/* Response Codes */
+
+#define RMAXSIZE 14
+
+#define R200 "200 OK"
+#define R404 "404 Not Found"
+
 /* Content Types */
 
-#define R200_HEADER "HTTP/1.1 200 OK\nContent-Type: text/html\n\n"
-#define R200_HSIZE 41
+#define CMAXSIZE 13
+
+#define CHTML "text/html"
+#define CMPEG "audio/mpeg"
+#define CXICO "image/x-icon"
+#define CVMP4 "video/mp4"
+#define CJPEG "image/jpeg"
+#define CIPNG "image/png"
 
 #endif

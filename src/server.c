@@ -63,8 +63,15 @@ struct Server *create_server(int domain, int service, int protocol,
   return server;
 }
 
-char *process_request(struct Request *req) {
+struct Response *process_request(struct Request *req) {
+  struct Response *resp = (struct Response *)malloc(sizeof(struct Response));
+
+  char path[strlen(req->request_file) + 6];
   char *filetype = strchr(req->request_file, '.');
+  char respcode[RMAXSIZE] = "";
+  char conttype[CMAXSIZE] = "";
+
+  FILE *fd;
 
   if (filetype == NULL) {
     filetype = "html";
@@ -72,41 +79,60 @@ char *process_request(struct Request *req) {
   } else
     filetype++;
 
-  char header[250] = "";
-
-  char *path = (char *)malloc(sizeof(char) * (strlen(req->request_file) + 6));
+  resp->response_header = (char *)malloc(250);
   sprintf(path, "./html%s", req->request_file);
 
-  FILE *fd = fopen(path, "r");
+  fd = fopen(path, "rb");
 
   if (fd == NULL) {
-    log_warn("Requested file %s not found", path);
-    free(path);
-    return NULL;
+    log_debug("Requested file %s not found", path);
+
+    fd = fopen(P404, "r");
+
+    if (fd == NULL) {
+      log_warn("Unable to open error page");
+      return NULL;
+    }
+
+    filetype = "html";
+    strcpy(respcode, R404);
+  } else {
+    strcpy(respcode, R200);
   }
 
   log_debug("Filetype: %s", filetype);
 
-  if (strcmp(filetype, "css") == 0) {
-    strcpy(header, "");
-  } else if (strcmp(filetype, "html") == 0) {
-    strcpy(header, "HTTP/1.1 200 OK\nContent-Type: text/html\n\n");
+  fseek(fd, 0, SEEK_END);
+  size_t fsize = ftell(fd);
+  fseek(fd, 0, SEEK_SET);
+
+  if (strcmp(filetype, "html") == 0) {
+    strcpy(conttype, CHTML);
+  } else if (strcmp(filetype, "mp3") == 0) {
+    strcpy(conttype, CMPEG);
+  } else if (strcmp(filetype, "ico") == 0) {
+    strcpy(conttype, CXICO);
+  } else if (strcmp(filetype, "mp4") == 0) {
+    strcpy(conttype, CVMP4);
+  } else if (strcmp(filetype, "jpg") == 0 || strcmp(filetype, "jpeg") == 0) {
+    strcpy(conttype, CJPEG);
+  } else if (strcmp(filetype, "png") == 0) {
+    strcpy(conttype, CIPNG);
   }
 
-  fseek(fd, 0, SEEK_END);
-  int fsize = ftell(fd);
-  rewind(fd);
+  sprintf(resp->response_header,
+          "HTTP/1.1 %s\r\n"
+          "Content-Type: %s\r\n"
+          "Content-Length: %zu\r\n"
+          "Connection: close\r\n\r\n",
+          respcode, conttype, fsize);
 
-  char *response_content = (char *)malloc(sizeof(char) * fsize);
-  fread(response_content, 1, fsize, fd);
+  log_debug("Filesize: %d", fsize);
+
+  resp->response_content = (char *)malloc(fsize);
+  resp->content_size = fsize;
+  fread(resp->response_content, 1, fsize, fd);
+
   fclose(fd);
-
-  char *res = (char *)malloc(sizeof(char) *
-                             (strlen(header) + strlen(response_content)));
-
-  strcpy(res, header);
-  strcat(res, response_content);
-  free(response_content);
-  free(path);
-  return res;
+  return resp;
 }

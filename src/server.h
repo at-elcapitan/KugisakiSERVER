@@ -46,6 +46,6 @@ struct Server *create_server(int domain, int service, int protocol,
                              long interface, int port, int backlog,
                              char *files);
 void free_server(struct Server *server);
-char *process_request(struct Request *req);
+struct Response *process_request(struct Request *req);
 
 #endif

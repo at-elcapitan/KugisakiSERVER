@@ -31,9 +31,11 @@ struct Request {
 struct Response {
   char *response_header;
   char *response_content;
+  size_t content_size;
 };
 
 struct Request *create_request(int socket, int size);
 void delete_reqest(struct Request *req);
+void delete_response(struct Response *resp);
 
 #endif

@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
       continue;
     }
 
-    char *resp = process_request(req);
+    struct Response *resp = process_request(req);
     delete_reqest(req);
 
     if (resp == NULL) {
@@ -130,8 +130,11 @@ int main(int argc, char *argv[]) {
       continue;
     }
 
-    write(clsocket, resp, strlen(resp));
-    free(resp);
+    log_debug("Response:\n%s %s", resp->response_header,
+              resp->response_content);
+    send(clsocket, resp->response_header, strlen(resp->response_header), 0);
+    send(clsocket, resp->response_content, resp->content_size, 0);
+    delete_response(resp);
     close(clsocket);
   }
   return 0;
