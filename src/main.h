@@ -30,4 +30,4 @@
 #include "server.h"
 #include "types.h"
 
-#define BUILD "atnk-202404090244"
+#define BUILD "v0.0.1 2024-03-01"
