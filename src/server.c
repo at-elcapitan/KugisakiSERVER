@@ -80,6 +80,12 @@ struct Response *process_request(struct Request *req) {
     filetype++;
 
   resp->response_header = (char *)malloc(250);
+
+  if (resp->response_header == NULL) {
+    log_error("Cannot allocate memory: %s", strerror(errno));
+    return NULL;
+  }
+
   sprintf(path, "./html%s", req->request_file);
 
   fd = fopen(path, "rb");
@@ -130,6 +136,12 @@ struct Response *process_request(struct Request *req) {
   log_debug("Filesize: %d", fsize);
 
   resp->response_content = (char *)malloc(fsize);
+
+  if (resp->response_content == NULL) {
+    log_error("Cannot allocate memory: %s", strerror(errno));
+    return NULL;
+  }
+
   resp->content_size = fsize;
   fread(resp->response_content, 1, fsize, fd);
 

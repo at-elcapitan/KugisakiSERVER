@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
   server = create_server(AF_INET, SOCK_STREAM, 0, INADDR_ANY, port, 10, "");
 
   if (server == NULL) {
-    log_fatal("Cannot create server, exiting...");
+    log_fatal("Cannot create server, exiting");
     return -1;
   }
 
@@ -112,6 +112,11 @@ int main(int argc, char *argv[]) {
 
     char *token = strtok(req_data, "\n");
     struct Request *req = create_request(clsocket, strlen(token));
+
+    if (req == NULL) {
+      log_fatal("Fatal error, exiting");
+      return -1;
+    }
 
     log_info("Accepting %s", token);
 

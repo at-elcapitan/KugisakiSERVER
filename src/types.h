@@ -19,7 +19,10 @@
 #ifndef kugisaki_TYPES
 #define kugisaki_TYPES
 
+#include "log.h"
+
 #include <stdlib.h>
+#include <errno.h>
 
 struct Request {
   int socket;

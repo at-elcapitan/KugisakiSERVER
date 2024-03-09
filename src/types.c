@@ -21,7 +21,16 @@
 struct Request *create_request(int socket, int size) {
   struct Request *req = (struct Request *)malloc(sizeof(struct Request));
 
+  if (req == NULL) {
+    log_error("Unable to allocate memory: %s", strerror(errno));
+  }
+
   req->request_file = (char *)malloc(sizeof(char) * size);
+
+  if (req->request_file == NULL) {
+    log_error("Unable to allocate memory: %s", strerror(errno));
+  }
+
   req->socket = socket;
 
   return req;
